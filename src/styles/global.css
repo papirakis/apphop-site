@@ -113,9 +113,10 @@ details.faq p { padding-bottom: var(--space-3); }
 
 /* Footer */
 .site-footer { border-top: 1px solid var(--color-border); background: var(--color-surface-2); padding-block: var(--space-6) calc(var(--space-6) + env(safe-area-inset-bottom)); font-size: var(--text-sm); margin-top: var(--space-7); }
-.site-footer .cols { display: grid; gap: var(--space-5); grid-template-columns: 1fr; }
-@media (min-width: 600px) { .site-footer .cols { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 900px) { .site-footer .cols { grid-template-columns: 2fr repeat(3, 1fr); } }
+.site-footer .cols { display: grid; gap: var(--space-4) var(--space-5); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.site-footer .cols > :first-child { grid-column: 1 / -1; }
+@media (min-width: 600px) { .site-footer .cols { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 900px) { .site-footer .cols { grid-template-columns: 2fr repeat(4, minmax(0, 1fr)); } .site-footer .cols > :first-child { grid-column: auto; } }
 .site-footer h2 { font-size: 1rem; margin-bottom: var(--space-2); }
 .site-footer ul { list-style: none; padding: 0; margin: 0; }
 .site-footer a { display: inline-flex; align-items: center; min-height: var(--tap); color: var(--color-text); }
