@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { PAGES } from './pages';
 
 // axe on every template at a phone width and a desktop width: zero serious/critical WCAG 2.2 AA violations.
-test.skip(({}, info) => !['iphone-15', 'pixel-7', 'desktop'].includes(info.project.name), 'a11y runs on phone + desktop projects');
+test.beforeEach(({}, info) => { test.skip(!['iphone-15', 'pixel-7', 'desktop'].includes(info.project.name), 'a11y runs on phone + desktop projects'); });
 
 for (const scheme of ['light', 'dark'] as const) {
   for (const p of PAGES) {
