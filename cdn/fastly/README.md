@@ -1,5 +1,23 @@
 # Fastly service (Terraform)
 
+## Phase 1 staging (live)
+
+Shared-TLS hostname, no custom DNS, no paid add-ons. Origin is Bunny storage until the AWS hold lifts.
+
+```bash
+. ../../scripts/cdn_env.sh
+cdn/fastly/staging/apply.sh
+```
+
+- URL: `https://apphop-site.global.ssl.fastly.net`
+- The signup stub service (`AppHop's website`) was imported and renamed to `apphop-site`.
+- HTTP on this shared SSL domain is not used; clients should use HTTPS.
+- Header `x-served-by-cdn: fastly`. Staging responses also send `X-Robots-Tag: noindex, nofollow`.
+
+Terraform state stays local and is gitignored (it includes the storage-origin credential).
+
+## Production (blocked: S3 origin + DNS)
+
 Blocked until the Fastly account exists. Then:
 
 ```bash

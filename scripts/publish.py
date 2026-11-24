@@ -16,6 +16,25 @@ Use --dry-run to print the plan without uploading.
 """
 import argparse, json, mimetypes, os, sys, time, urllib.request
 
+
+def _load_secure_env():
+    """Load ~/.fastly-secure and ~/.bunny-secure if vars are unset. Never prints values."""
+    if os.environ.get("FASTLY_API_TOKEN") and not os.environ.get("FASTLY_API_KEY"):
+        os.environ["FASTLY_API_KEY"] = os.environ["FASTLY_API_TOKEN"]
+    for path in (os.path.expanduser("~/.fastly-secure/fastly.env"), os.path.expanduser("~/.bunny-secure/bunny.env")):
+        if not os.path.isfile(path):
+            continue
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k, v)
+    if os.environ.get("FASTLY_API_TOKEN") and not os.environ.get("FASTLY_API_KEY"):
+        os.environ["FASTLY_API_KEY"] = os.environ["FASTLY_API_TOKEN"]
+
+
 mimetypes.add_type("application/manifest+json", ".webmanifest")
 mimetypes.add_type("image/avif", ".avif")
 mimetypes.add_type("image/webp", ".webp")
@@ -61,13 +80,19 @@ def s3_upload(bucket, items, dry):
     print(f"s3://{bucket}: uploaded {len(items)}")
 
 
+def _bunny_object_url(host, zone, rel):
+    # Both the legacy host and regional hosts (ny.storage.bunnycdn.com, ...) expect /{zone}/{key}.
+    return f"https://{host}/{zone}/{rel}"
+
+
 def bunny_upload(items, dry):
-    zone, host, pw = os.environ["BUNNY_STORAGE_ZONE"], os.environ.get("BUNNY_STORAGE_HOST", "storage.bunnycdn.com"), os.environ["BUNNY_STORAGE_PASSWORD"]
+    zone, host, pw = os.environ["BUNNY_STORAGE_ZONE"], os.environ.get("BUNNY_STORAGE_HOST", "ny.storage.bunnycdn.com"), os.environ["BUNNY_STORAGE_PASSWORD"]
     if dry:
-        print(f"[dry] bunny storage {zone}: {len(items)} objects"); return
+        print(f"[dry] bunny storage {zone} via {host}: {len(items)} objects"); return
     for rel, path in items:
-        ctype, _ = meta(rel)
-        http("PUT", f"https://{host}/{zone}/{rel}", {"AccessKey": pw, "Content-Type": ctype}, open(path, "rb").read())
+        ctype, cache = meta(rel)
+        http("PUT", _bunny_object_url(host, zone, rel),
+             {"AccessKey": pw, "Content-Type": ctype, "Cache-Control": cache}, open(path, "rb").read())
     print(f"bunny storage {zone}: uploaded {len(items)}")
 
 
@@ -97,6 +122,7 @@ def main():
     ap.add_argument("--dist", default="dist")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
+    _load_secure_env()
     items = files(a.dist)
     if not items:
         sys.exit("dist/ is empty; run npm run build first")

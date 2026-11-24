@@ -11,3 +11,6 @@ cdn/fastly/*.tfvars
 *.pem
 *.key
 .env*
+cdn/fastly/staging/.terraform/
+cdn/fastly/staging/*.tfstate*
+cdn/fastly/staging/*.tfvars
