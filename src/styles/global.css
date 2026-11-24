@@ -65,7 +65,8 @@ main { flex: 1; }
 .crumbs { font-size: var(--text-sm); padding-top: var(--space-4); }
 .crumbs ol { display: flex; flex-wrap: wrap; gap: var(--space-2); list-style: none; padding: 0; margin: 0; }
 .crumbs li + li::before { content: "/"; margin-right: var(--space-2); color: var(--color-text-muted); }
-.crumbs a { display: inline-flex; min-height: var(--tap); align-items: center; }
+.crumbs li { display: flex; align-items: center; }
+.crumbs a, .crumbs [aria-current] { display: inline-flex; min-height: var(--tap); align-items: center; }
 .subnav { margin-top: var(--space-3); overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .subnav ul { display: inline-flex; gap: var(--space-1); padding: var(--space-1); margin: 0; list-style: none; background: var(--color-surface-2); border-radius: 999px; }
 .subnav a { display: inline-flex; align-items: center; min-height: var(--tap); padding-inline: var(--space-4); border-radius: 999px; color: var(--color-text); text-decoration: none; white-space: nowrap; }
