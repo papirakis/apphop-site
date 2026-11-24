@@ -1,0 +1,9 @@
+---
+// Placeholder App Store badge. Replace with Apple's official badge artwork (marketing) once the app is live.
+interface Props { appStoreId: string | null; name: string; status: string }
+const { appStoreId, name, status } = Astro.props;
+const label = status === 'beta' ? 'In beta · Coming soon to the App Store' : 'Coming soon to the App Store';
+---
+{appStoreId
+  ? <a class="store-badge" href={`https://apps.apple.com/app/id${appStoreId}`} aria-label={`Download ${name} on the App Store`}>Download on the App Store</a>
+  : <span class="store-badge" role="note" aria-disabled="true">{label}</span>}

@@ -1,0 +1,20 @@
+---
+import Base from '../layouts/Base.astro';
+import Crumbs from '../components/Crumbs.astro';
+import { SITE } from '../data/site';
+import { APPS } from '../data/apps';
+import { u } from '../lib';
+---
+<Base title="Privacy" description="AppHop privacy policy for this website and links to each app's policy.">
+  <Crumbs items={[{ label: 'Privacy' }]} />
+  <section class="section wrap prose">
+    <h1>Privacy</h1>
+    <p class="notice">Draft for review.</p>
+    <h2>This website</h2>
+    <p>This site uses no cookies and no advertising trackers. Our hosting and content delivery providers keep standard server logs (such as IP address, page requested and browser type) for security and reliability, and delete them on a rolling basis.</p>
+    <h2>Our apps</h2>
+    <ul>{APPS.map((a) => <li><a href={u(`apps/${a.slug}/privacy/`)}>{a.name} privacy policy</a></li>)}</ul>
+    <h2>Contact</h2>
+    <p><a href={`mailto:${SITE.emails.privacy}`}>{SITE.emails.privacy}</a></p>
+  </section>
+</Base>

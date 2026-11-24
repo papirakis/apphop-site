@@ -1,0 +1,34 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Crumbs from '../../../components/Crumbs.astro';
+import AppSubnav from '../../../components/AppSubnav.astro';
+import StoreBadge from '../../../components/StoreBadge.astro';
+import { APPS, type AppEntry } from '../../../data/apps';
+import { u } from '../../../lib';
+export function getStaticPaths() { return APPS.map((app) => ({ params: { slug: app.slug }, props: { app } })); }
+const { app } = Astro.props as { app: AppEntry };
+const jsonLd = { '@context': 'https://schema.org', '@type': 'MobileApplication', name: app.name, operatingSystem: 'iOS', applicationCategory: 'UtilitiesApplication', description: app.summary };
+---
+<Base title={app.name} description={app.summary} appStoreId={app.appStoreId} jsonLd={jsonLd}>
+  <Crumbs items={[{ label: 'Apps', href: 'apps/' }, { label: app.name }]} />
+  <div class="wrap"><AppSubnav slug={app.slug} current="overview" /></div>
+  <section class="hero wrap app-hero">
+    <img class="icon" src={u(`apps/${app.slug}.svg`)} alt={`${app.name} icon`} width="96" height="96" fetchpriority="high" />
+    <div>
+      <h1>{app.name}</h1>
+      <p class="lede">{app.tagline}</p>
+      <p>{app.summary}</p>
+      <div class="actions"><StoreBadge appStoreId={app.appStoreId} name={app.name} status={app.status} /></div>
+      <p class="muted"><small>{app.requirements}</small></p>
+    </div>
+  </section>
+  <section class="section wrap" aria-labelledby="feat-h">
+    <h2 id="feat-h">What it does</h2>
+    <div class="grid">{app.features.map((f) => <div class="card"><h3>{f.title}</h3><p class="muted">{f.body}</p></div>)}</div>
+  </section>
+  <section class="section wrap prose" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    {app.faq.map((f) => <details class="faq"><summary>{f.q}</summary><p>{f.a}</p></details>)}
+    <p><a href={u(`apps/${app.slug}/support/`)}>More help on the {app.name} support page</a></p>
+  </section>
+</Base>

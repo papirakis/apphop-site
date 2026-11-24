@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+import AppCard from '../components/AppCard.astro';
+import { APPS } from '../data/apps';
+import { SITE } from '../data/site';
+import { u } from '../lib';
+const featured = APPS[0];
+---
+<Base title={SITE.name} description={SITE.tagline} jsonLd={{ '@context': 'https://schema.org', '@type': 'Organization', name: SITE.name, url: 'https://www.apphop.app/', email: SITE.emails.hello }}>
+  <section class="hero wrap">
+    <h1>Useful apps for the things around you.</h1>
+    <p class="lede">{SITE.tagline} Each one does a single job well, works on your iPhone, and respects your privacy.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href={u('apps/')}>Browse the apps</a>
+      <a class="btn btn-ghost" href={u(`apps/${featured.slug}/`)}>Try {featured.name}</a>
+    </div>
+  </section>
+  <section class="section wrap" aria-labelledby="apps-h">
+    <h2 id="apps-h">The apps</h2>
+    <div class="grid">{APPS.map((a) => <AppCard app={a} />)}</div>
+  </section>
+  <section class="section wrap" aria-labelledby="why-h">
+    <h2 id="why-h">How we build</h2>
+    <div class="grid">
+      <div class="card"><h3>On-device first</h3><p class="muted">Recognition and measurement run on your iPhone wherever possible, so your photos and scans stay with you.</p></div>
+      <div class="card"><h3>One job, done well</h3><p class="muted">Each app is small and focused. No feeds, no clutter.</p></div>
+      <div class="card"><h3>Here to help</h3><p class="muted">Every app has a support page and a real inbox. <a href={u('contact/')}>Get in touch</a>.</p></div>
+    </div>
+  </section>
+</Base>

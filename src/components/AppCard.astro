@@ -1,0 +1,17 @@
+---
+import { u } from '../lib';
+import type { AppEntry } from '../data/apps';
+interface Props { app: AppEntry }
+const { app } = Astro.props;
+---
+<a class="card app-card" href={u(`apps/${app.slug}/`)}>
+  <div class="head">
+    <img src={u(`apps/${app.slug}.svg`)} alt="" width="56" height="56" loading="lazy" decoding="async" />
+    <div>
+      <h3>{app.name}</h3>
+      <span class="pill">{app.status === 'beta' ? 'Beta' : app.status === 'available' ? 'Available' : 'Coming soon'}</span>
+    </div>
+  </div>
+  <p>{app.tagline}</p>
+  <span class="more">Learn more →</span>
+</a>

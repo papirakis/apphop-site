@@ -1,0 +1,28 @@
+{
+  "name": "apphop-site",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview --port 4321",
+    "test": "playwright test",
+    "test:visual": "playwright test tests/visual.spec.ts",
+    "test:update": "playwright test tests/visual.spec.ts --update-snapshots",
+    "lhci": "lhci autorun",
+    "links": "linkinator dist --recurse --skip \"^mailto:\" --skip \"^https://(www\\.apphop\\.app|schema\\.org|www\\.sitemaps\\.org)\"",
+    "postbuild": "python3 scripts/manifest.py dist"
+  },
+  "license": "UNLICENSED",
+  "type": "module",
+  "dependencies": {
+    "astro": "^5.18.2"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.1",
+    "@lhci/cli": "^0.16.1",
+    "@playwright/test": "1.65.1",
+    "linkinator": "^8.1.0"
+  },
+  "private": true
+}

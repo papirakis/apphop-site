@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  us-east-1 replica origin bucket. Serves (a) CloudFront origin failover via OAC and (b) Fastly's origin.
+  Fastly is admitted only when it sends the shared secret in the Referer header (classic CDN-origin pattern;
+  keeps the bucket non-public to browsers/crawlers). Deploy in us-east-1.
+Parameters:
+  ReplicaBucketName: { Type: String, Default: apphop-site-origin-use1 }
+  FastlyOriginSecret: { Type: String, NoEcho: true, MinLength: 32, Description: "Random 32+ char value; also set in Fastly (TF var origin_secret)." }
+  CloudFrontDistributionArn: { Type: String, Default: "" }
+Conditions:
+  HasCF: !Not [!Equals [!Ref CloudFrontDistributionArn, ""]]
+Resources:
+  ReplicaBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref ReplicaBucketName
+      PublicAccessBlockConfiguration: { BlockPublicAcls: true, BlockPublicPolicy: false, IgnorePublicAcls: true, RestrictPublicBuckets: false }
+      OwnershipControls: { Rules: [{ ObjectOwnership: BucketOwnerEnforced }] }
+      VersioningConfiguration: { Status: Enabled }
+      LifecycleConfiguration: { Rules: [{ Id: expire-old-versions, Status: Enabled, NoncurrentVersionExpiration: { NoncurrentDays: 7 } }] }
+  ReplicaPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ReplicaBucket
+      PolicyDocument:
+        Statement:
+          - Sid: FastlyWithSecretReferer
+            Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource: !Sub "arn:aws:s3:::${ReplicaBucket}/*"
+            Condition: { StringEquals: { "aws:Referer": !Ref FastlyOriginSecret } }
+          - !If
+            - HasCF
+            - Sid: AllowCloudFrontOAC
+              Effect: Allow
+              Principal: { Service: cloudfront.amazonaws.com }
+              Action: s3:GetObject
+              Resource: !Sub "arn:aws:s3:::${ReplicaBucket}/*"
+              Condition: { StringEquals: { "AWS:SourceArn": !Ref CloudFrontDistributionArn } }
+            - !Ref "AWS::NoValue"
+Outputs:
+  ReplicaBucketDomain: { Value: !GetAtt ReplicaBucket.RegionalDomainName }

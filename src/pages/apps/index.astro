@@ -1,0 +1,14 @@
+---
+import Base from '../../layouts/Base.astro';
+import AppCard from '../../components/AppCard.astro';
+import Crumbs from '../../components/Crumbs.astro';
+import { APPS } from '../../data/apps';
+---
+<Base title="Apps" description="All AppHop iPhone apps: RoomMeasure, Tendril, Gear Bins and more.">
+  <Crumbs items={[{ label: 'Apps' }]} />
+  <section class="hero wrap">
+    <h1>Apps</h1>
+    <p class="lede">Focused iPhone apps for home, garden and workshop.</p>
+  </section>
+  <section class="wrap"><div class="grid">{APPS.map((a) => <AppCard app={a} />)}</div></section>
+</Base>

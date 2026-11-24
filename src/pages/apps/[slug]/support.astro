@@ -1,0 +1,32 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Crumbs from '../../../components/Crumbs.astro';
+import AppSubnav from '../../../components/AppSubnav.astro';
+import { APPS, type AppEntry } from '../../../data/apps';
+import { SITE } from '../../../data/site';
+import { u } from '../../../lib';
+export function getStaticPaths() { return APPS.map((app) => ({ params: { slug: app.slug }, props: { app } })); }
+const { app } = Astro.props as { app: AppEntry };
+const mail = `mailto:${SITE.emails.support}?subject=${encodeURIComponent(app.name + ' support')}`;
+---
+<Base title={`${app.name} Support`} description={`Help, answers and contact for ${app.name}.`}>
+  <Crumbs items={[{ label: 'Apps', href: 'apps/' }, { label: app.name, href: `apps/${app.slug}/` }, { label: 'Support' }]} />
+  <div class="wrap"><AppSubnav slug={app.slug} current="support" /></div>
+  <section class="section wrap prose">
+    <h1>{app.name} support</h1>
+    <p class="lede">We read every message and usually reply within two business days.</p>
+    <div class="actions"><a class="btn btn-primary" href={mail}>Email support</a></div>
+    <h2>Common questions</h2>
+    {app.faq.map((f) => <details class="faq"><summary>{f.q}</summary><p>{f.a}</p></details>)}
+    <h2>Troubleshooting</h2>
+    <ul>
+      <li>Update to the latest version of {app.name} and iOS.</li>
+      <li>Check that {app.name} has the permissions it needs in Settings › {app.name}.</li>
+      <li>Restart the app. If a problem persists, email us with your iPhone model, iOS version and app version (Settings › About in the app).</li>
+    </ul>
+    <h2>Requirements</h2>
+    <p>{app.requirements}</p>
+    <h2>Privacy</h2>
+    <p>Read the <a href={u(`apps/${app.slug}/privacy/`)}>{app.name} privacy policy</a>.</p>
+  </section>
+</Base>

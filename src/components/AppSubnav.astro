@@ -1,0 +1,15 @@
+---
+import { u } from '../lib';
+interface Props { slug: string; current: 'overview' | 'support' | 'privacy' }
+const { slug, current } = Astro.props;
+const tabs = [
+  { key: 'overview', label: 'Overview', href: `apps/${slug}/` },
+  { key: 'support', label: 'Support', href: `apps/${slug}/support/` },
+  { key: 'privacy', label: 'Privacy', href: `apps/${slug}/privacy/` },
+];
+---
+<nav class="subnav" aria-label="App sections">
+  <ul>
+    {tabs.map((t) => <li><a href={u(t.href)} aria-current={t.key === current ? 'page' : undefined}>{t.label}</a></li>)}
+  </ul>
+</nav>

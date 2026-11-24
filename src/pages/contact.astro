@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+import Crumbs from '../components/Crumbs.astro';
+import { SITE } from '../data/site';
+import { APPS } from '../data/apps';
+import { u } from '../lib';
+---
+<Base title="Contact" description="How to reach AppHop for support, press and general questions.">
+  <Crumbs items={[{ label: 'Contact' }]} />
+  <section class="hero wrap"><h1>Contact</h1><p class="lede">Email is the best way to reach us.</p></section>
+  <section class="wrap">
+    <div class="grid">
+      <div class="card"><h3>App support</h3><p class="muted">Questions or problems with an app.</p><a class="btn btn-primary" href={`mailto:${SITE.emails.support}`}>{SITE.emails.support}</a></div>
+      <div class="card"><h3>Press</h3><p class="muted">Reviews, interviews and assets.</p><a class="btn btn-ghost" href={`mailto:${SITE.emails.press}`}>{SITE.emails.press}</a></div>
+      <div class="card"><h3>Everything else</h3><p class="muted">Partnerships and general questions.</p><a class="btn btn-ghost" href={`mailto:${SITE.emails.hello}`}>{SITE.emails.hello}</a></div>
+    </div>
+    <p class="section">Looking for help with a specific app? {APPS.map((a, i) => <>{i > 0 && ' · '}<a href={u(`apps/${a.slug}/support/`)}>{a.name} support</a></>)}</p>
+  </section>
+</Base>

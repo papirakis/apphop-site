@@ -1,0 +1,14 @@
+---
+import Base from '../layouts/Base.astro';
+import Crumbs from '../components/Crumbs.astro';
+import { u } from '../lib';
+---
+<Base title="About" description="AppHop is a small studio making focused iPhone apps for home, garden and workshop.">
+  <Crumbs items={[{ label: 'About' }]} />
+  <section class="hero wrap prose">
+    <h1>About AppHop</h1>
+    <p class="lede">We are a small, independent studio making focused iPhone apps for the physical things in your life: rooms, plants, tools.</p>
+    <p>Our apps lean on what modern iPhones do best — cameras, LiDAR and on-device intelligence — so they are fast, work offline and keep your data on your phone.</p>
+    <p>We would love to hear from you. <a href={u('contact/')}>Contact us</a>.</p>
+  </section>
+</Base>

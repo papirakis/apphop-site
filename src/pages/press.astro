@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+import Crumbs from '../components/Crumbs.astro';
+import { APPS } from '../data/apps';
+import { SITE } from '../data/site';
+import { u } from '../lib';
+---
+<Base title="Press kit" description="Logos, app icons, fact sheets and press contact for AppHop.">
+  <Crumbs items={[{ label: 'Press' }]} />
+  <section class="hero wrap"><h1>Press kit</h1><p class="lede">Everything you need to write about our apps. Final brand assets are on the way.</p></section>
+  <section class="section wrap" aria-labelledby="assets-h">
+    <h2 id="assets-h">Brand assets</h2>
+    <div class="grid">
+      <div class="card"><h3>Logo</h3><img src={u('brand/logo.svg')} alt="AppHop logo (placeholder)" width="64" height="64" loading="lazy" /><p><a href={u('brand/logo.svg')} download>Download SVG</a></p></div>
+      {APPS.map((a) => <div class="card"><h3>{a.name} icon</h3><img src={u(`apps/${a.slug}.svg`)} alt={`${a.name} icon (placeholder)`} width="64" height="64" loading="lazy" /><p><a href={u(`apps/${a.slug}.svg`)} download>Download SVG</a></p></div>)}
+    </div>
+  </section>
+  <section class="section wrap" aria-labelledby="facts-h">
+    <h2 id="facts-h">Fact sheets</h2>
+    <div class="grid">
+      {APPS.map((a) => <div class="card"><h3>{a.name}</h3><p class="muted">{a.summary}</p><p><small>Platform: iPhone · {a.requirements}</small></p></div>)}
+    </div>
+  </section>
+  <section class="section wrap prose"><h2>Press contact</h2><p><a href={`mailto:${SITE.emails.press}`}>{SITE.emails.press}</a></p></section>
+</Base>

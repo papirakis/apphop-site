@@ -1,0 +1,120 @@
+---
+import '../styles/tokens.css';
+import '../styles/global.css';
+import { SITE, NAV } from '../data/site';
+import { APPS } from '../data/apps';
+import { u, BUILD_ID } from '../lib';
+
+interface Props {
+  title: string;
+  description: string;
+  appStoreId?: string | null;
+  jsonLd?: Record<string, unknown>;
+}
+const { title, description, appStoreId = null, jsonLd } = Astro.props;
+const fullTitle = title === SITE.name ? `${SITE.name} — ${SITE.tagline}` : `${title} · ${SITE.name}`;
+const canonical = new URL(Astro.url.pathname.replace(import.meta.env.BASE_URL, '/'), 'https://www.apphop.app').href;
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => path.startsWith(u(href));
+const ogImage = new URL(u('brand/og-default.png'), Astro.site).href;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="build" content={BUILD_ID} />
+    {import.meta.env.PUBLIC_STAGING === "1" && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#121314" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href={u('brand/favicon.svg')} type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    {appStoreId && <meta name="apple-itunes-app" content={`app-id=${appStoreId}`} />}
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="wrap bar">
+        <a class="brand" href={u('')} aria-label={`${SITE.name} home`}>
+          <img src={u('brand/logo.svg')} alt="" width="28" height="28" />
+          <span>{SITE.name}</span>
+        </a>
+        <nav class="nav-inline" aria-label="Main">
+          <ul>
+            {NAV.map((n) => <li><a href={u(n.href)} aria-current={isCurrent(n.href) ? 'page' : undefined}>{n.label}</a></li>)}
+          </ul>
+        </nav>
+        <details class="menu" data-menu>
+          <summary aria-label="Menu"><span aria-hidden="true">☰</span><span>Menu</span></summary>
+          <div class="menu-sheet" role="dialog" aria-label="Site menu">
+            <nav aria-label="Mobile">
+              <ul class="primary">
+                {NAV.map((n) => <li><a href={u(n.href)} aria-current={isCurrent(n.href) ? 'page' : undefined}>{n.label}</a></li>)}
+              </ul>
+              <ul class="apps-quick" aria-label="Apps">
+                {APPS.map((a) => <li><a href={u(`apps/${a.slug}/`)}>{a.name}</a></li>)}
+              </ul>
+            </nav>
+          </div>
+        </details>
+      </div>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="wrap cols">
+        <div>
+          <a class="brand" href={u('')}><img src={u('brand/logo.svg')} alt="" width="28" height="28" /><span>{SITE.name}</span></a>
+          <p class="muted">{SITE.tagline}</p>
+        </div>
+        {APPS.map((a) => (
+          <div>
+            <h2>{a.name}</h2>
+            <ul>
+              <li><a href={u(`apps/${a.slug}/`)}>Overview</a></li>
+              <li><a href={u(`apps/${a.slug}/support/`)}>Support</a></li>
+              <li><a href={u(`apps/${a.slug}/privacy/`)}>Privacy</a></li>
+            </ul>
+          </div>
+        ))}
+        <div>
+          <h2>Company</h2>
+          <ul>
+            <li><a href={u('about/')}>About</a></li>
+            <li><a href={u('press/')}>Press kit</a></li>
+            <li><a href={u('contact/')}>Contact</a></li>
+            <li><a href={u('privacy/')}>Privacy</a></li>
+            <li><a href={u('legal/')}>Legal</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="wrap"><p class="muted">© {new Date().getFullYear()} {SITE.copyrightHolder}. iPhone and App Store are trademarks of Apple Inc.</p></div>
+    </footer>
+    <script is:inline>
+      // Progressive enhancement for the details-based menu: Esc closes, outside tap closes, focus returns.
+      (function () {
+        var m = document.querySelector('[data-menu]');
+        if (!m) return;
+        var s = m.querySelector('summary');
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && m.open) { m.open = false; s.focus(); } });
+        m.addEventListener('toggle', function () {
+          document.documentElement.style.overflow = m.open ? 'hidden' : '';
+          if (m.open) { var f = m.querySelector('.menu-sheet a'); if (f) f.focus(); }
+        });
+        m.querySelector('.menu-sheet').addEventListener('click', function (e) { if (e.target === e.currentTarget) m.open = false; });
+      })();
+    </script>
+  </body>
+</html>
