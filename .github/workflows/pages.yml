@@ -1,0 +1,50 @@
+name: Staging (GitHub Pages)
+# Free public staging: https://papirakis.github.io/apphop-site/ (noindex). Production goes to the three CDNs via cdn/.
+on:
+  push: { branches: [main] }
+  workflow_dispatch:
+permissions: { contents: read, pages: write, id-token: write }
+concurrency: { group: pages, cancel-in-progress: false }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - run: npm run build
+        env:
+          SITE_URL: https://papirakis.github.io
+          SITE_BASE: /apphop-site/
+          PUBLIC_STAGING: "1"
+          BUILD_ID: "${{ github.sha }}"
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: dist }
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: { name: github-pages, url: "${{ steps.d.outputs.page_url }}" }
+    steps:
+      - id: d
+        uses: actions/deploy-pages@v4
+  smoke:
+    name: Post-deploy mobile smoke on staging
+    needs: deploy
+    runs-on: ubuntu-latest
+    container: { image: "mcr.microsoft.com/playwright:v1.65.1-noble" }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - name: Wait for the new build to be live
+        run: |
+          for i in $(seq 1 30); do
+            id=$(curl -fsS https://papirakis.github.io/apphop-site/healthz.json | sed -E 's/.*"build_id":"([^"]+)".*/\1/') || true
+            [ "$id" = "${{ github.sha }}" ] && echo "live: $id" && exit 0
+            sleep 10
+          done
+          echo "build not live after 5 minutes"; exit 1
+      - run: npx playwright test tests/mobile.spec.ts --project=iphone-se --project=iphone-15-pro-max --project=pixel-7 --project=ipad-mini-portrait --project=desktop
+        env: { HOME: /root, BASE_URL: "https://papirakis.github.io/apphop-site/" }

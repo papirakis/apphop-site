@@ -1,0 +1,19 @@
+name: Update visual baselines
+# Regenerates the 144 visual baselines in the same pinned container CI uses and uploads them as an artifact.
+# A human/agent reviews the images, then commits tests/__screenshots__ in a PR (marketing approves brand changes).
+on: workflow_dispatch
+permissions: { contents: read }
+jobs:
+  baselines:
+    runs-on: ubuntu-latest
+    container: { image: "mcr.microsoft.com/playwright:v1.65.1-noble" }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright test tests/visual.spec.ts --update-snapshots=all
+        env: { HOME: /root }
+      - uses: actions/upload-artifact@v4
+        with: { name: visual-baselines, path: tests/__screenshots__, retention-days: 7 }
